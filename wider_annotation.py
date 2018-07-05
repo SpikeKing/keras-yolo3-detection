@@ -12,7 +12,7 @@ train_bbx_file = 'dataset/wider_face_split/wider_face_train_bbx_gt.txt'
 val_data_folder = 'dataset/WIDER_val'
 train_data_folder = 'dataset/WIDER_train'
 
-out_file = 'dataset//WIDER_train.txt'
+out_file = 'dataset/WIDER_train.txt'
 
 
 def generate_train_file(bbx_file, data_folder, out_file):
@@ -134,4 +134,4 @@ def write_line(file_name, line):
 
 if __name__ == '__main__':
     generate_train_file(val_bbx_file, val_data_folder, out_file)
-    # generate_train_file(train_bbx_file, train_data_folder, out_file)
+    generate_train_file(train_bbx_file, train_data_folder, out_file)
