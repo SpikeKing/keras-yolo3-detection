@@ -5,8 +5,6 @@ Copyright (c) 2018. All rights reserved.
 Created by C. L. Wang on 2018/7/4
 """
 
-# ! /usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Run a YOLO_v3 style detection model on test images.
 """

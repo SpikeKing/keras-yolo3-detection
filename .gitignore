@@ -111,3 +111,4 @@ venv.bak/
 # mydata
 model_data/
 dataset/
+logs/
