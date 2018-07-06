@@ -89,11 +89,7 @@ def _main():
         for i in range(len(model.layers)):
             model.layers[i].trainable = True
 
-        def mAP(y_true, y_pred):
-            return tf.reduce_mean(tf.metrics.sparse_average_precision_at_k(tf.cast(y_true, tf.int64), y_pred, 1)[0])
-
         model.compile(optimizer=Adam(lr=1e-4),
-                      metrics=[mAP],
                       loss={'yolo_loss': lambda y_true, y_pred: y_pred})  # recompile to apply the change
         print('Unfreeze all of the layers.')
 
