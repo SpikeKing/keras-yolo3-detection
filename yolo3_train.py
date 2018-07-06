@@ -23,7 +23,8 @@ def _main():
 
     log_dir = 'logs/003/'  # 日志文件夹
 
-    pretrained_path = 'model_data/yolo_weights.h5'  # 预训练模型
+    # pretrained_path = 'model_data/yolo_weights.h5'  # 预训练模型
+    pretrained_path = log_dir + 'trained_weights_stage_1.h5'  # 预训练模型
     anchors_path = 'configs/yolo_anchors.txt'  # anchors
 
     class_names = get_classes(classes_path)  # 类别列表
@@ -76,7 +77,6 @@ def _main():
         model.save_weights(log_dir + 'trained_weights_stage_1.h5')  # 存储最终的参数，再训练过程中，通过回调存储
 
     if True:  # 全部训练
-        model.load_weights(log_dir + 'trained_weights_stage_1.h5')  # 继续训练模型
         for i in range(len(model.layers)):
             model.layers[i].trainable = True
         model = multi_gpu_model(model, gpus=2)  # 两个GPU
