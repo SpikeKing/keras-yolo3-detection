@@ -18,8 +18,8 @@ from yolo3.utils import get_random_data
 
 
 def _main():
-    import os
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+    # import os
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
     # from keras import backend as K
     # config = tf.ConfigProto()
     # config.gpu_options.allow_growth = True
