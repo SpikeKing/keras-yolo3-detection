@@ -11,6 +11,7 @@ from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from keras.utils import multi_gpu_model
 
 from yolo3.model import preprocess_true_boxes, yolo_body, tiny_yolo_body, yolo_loss
 from yolo3.utils import get_random_data
@@ -57,7 +58,7 @@ def _main():
     直接将loss设置为y_pred（因为模型的输出就是loss，所以y_pred就是loss），
     无视y_true，训练的时候，y_true随便扔一个符合形状的数组进去就行了。
     """
-    if True:
+    if False:
         model.compile(optimizer=Adam(lr=1e-3), loss={
             # use custom yolo_loss Lambda layer.
             'yolo_loss': lambda y_true, y_pred: y_pred})  # 损失函数
@@ -75,8 +76,10 @@ def _main():
         model.save_weights(log_dir + 'trained_weights_stage_1.h5')  # 存储最终的参数，再训练过程中，通过回调存储
 
     if True:  # 全部训练
+        model.load_weights(log_dir + 'trained_weights_stage_1.h5')  # 继续训练模型
         for i in range(len(model.layers)):
             model.layers[i].trainable = True
+        model = multi_gpu_model(model, gpus=2)  # 两个GPU
         model.compile(optimizer=Adam(lr=1e-4),
                       loss={'yolo_loss': lambda y_true, y_pred: y_pred})  # recompile to apply the change
         print('Unfreeze all of the layers.')
