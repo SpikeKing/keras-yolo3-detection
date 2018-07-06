@@ -8,6 +8,7 @@ Created by C. L. Wang on 2018/7/4
 import numpy as np
 import tensorflow as tf
 import keras.backend as K
+from keras.backend import mean
 from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
@@ -88,12 +89,17 @@ def _main():
         for i in range(len(model.layers)):
             model.layers[i].trainable = True
 
+        def mAP(y_true, y_pred):
+            return tf.reduce_mean(tf.metrics.sparse_average_precision_at_k(tf.cast(y_true, tf.int64), y_pred, 1)[0])
+
         model.compile(optimizer=Adam(lr=1e-4),
+                      metrics=[mAP],
                       loss={'yolo_loss': lambda y_true, y_pred: y_pred})  # recompile to apply the change
         print('Unfreeze all of the layers.')
 
         batch_size = 16  # note that more GPU memory is required after unfreezing the body
         print('Train on {} samples, val on {} samples, with batch size {}.'.format(num_train, num_val, batch_size))
+
         model.fit_generator(data_generator_wrapper(lines[:num_train], batch_size, input_shape, anchors, num_classes),
                             steps_per_epoch=max(1, num_train // batch_size),
                             validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors,
