@@ -18,6 +18,14 @@ from yolo3.utils import get_random_data
 
 
 def _main():
+    import os
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+    from keras import backend as K
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    K.set_session(sess)
+
     annotation_path = 'dataset/WIDER_train.txt'  # 数据
     classes_path = 'configs/wider_classes.txt'  # 类别
 
@@ -79,14 +87,6 @@ def _main():
     if True:  # 全部训练
         for i in range(len(model.layers)):
             model.layers[i].trainable = True
-            
-        import os
-        os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
-        from keras import backend as K
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-        sess = tf.Session(config=config)
-        K.set_session(sess)
 
         model.compile(optimizer=Adam(lr=1e-4),
                       loss={'yolo_loss': lambda y_true, y_pred: y_pred})  # recompile to apply the change
