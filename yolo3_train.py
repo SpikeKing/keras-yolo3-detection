@@ -18,13 +18,13 @@ from yolo3.utils import get_random_data
 
 
 def _main():
-    # import os
-    # os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
-    # from keras import backend as K
-    # config = tf.ConfigProto()
-    # config.gpu_options.allow_growth = True
-    # sess = tf.Session(config=config)
-    # K.set_session(sess)
+    import os
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+    from keras import backend as K
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    K.set_session(sess)
 
     annotation_path = 'dataset/WIDER_train.txt'  # 数据
     classes_path = 'configs/wider_classes.txt'  # 类别
