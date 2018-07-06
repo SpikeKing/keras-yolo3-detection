@@ -6,12 +6,12 @@ Created by C. L. Wang on 2018/7/4
 """
 
 import numpy as np
+import tensorflow as tf
 import keras.backend as K
 from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
-from keras.utils import multi_gpu_model
 
 from yolo3.model import preprocess_true_boxes, yolo_body, tiny_yolo_body, yolo_loss
 from yolo3.utils import get_random_data
@@ -79,7 +79,15 @@ def _main():
     if True:  # 全部训练
         for i in range(len(model.layers)):
             model.layers[i].trainable = True
-        model = multi_gpu_model(model, gpus=2)  # 两个GPU
+            
+        import os
+        os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+        from keras import backend as K
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        sess = tf.Session(config=config)
+        K.set_session(sess)
+
         model.compile(optimizer=Adam(lr=1e-4),
                       loss={'yolo_loss': lambda y_true, y_pred: y_pred})  # recompile to apply the change
         print('Unfreeze all of the layers.')
