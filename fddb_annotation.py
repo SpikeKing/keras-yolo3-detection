@@ -57,7 +57,8 @@ def generate_train_file(bbx_folder, data_folder, out_file):
                     file_path = None
                 continue
 
-        break
+    res_lines = read_file(out_file)
+    print('数据行: %s' % len(res_lines))
 
 
 if __name__ == '__main__':
