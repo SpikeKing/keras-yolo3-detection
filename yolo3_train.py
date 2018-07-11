@@ -30,10 +30,10 @@ def _main():
     annotation_path = 'dataset/WIDER_train.txt'  # 数据
     classes_path = 'configs/wider_classes.txt'  # 类别
 
-    log_dir = 'logs/003/'  # 日志文件夹
+    log_dir = 'logs/004/'  # 日志文件夹
 
     # pretrained_path = 'model_data/yolo_weights.h5'  # 预训练模型
-    pretrained_path = log_dir + 'trained_weights_stage_1.h5'  # 预训练模型
+    pretrained_path = 'logs/003/ep074-loss26.535-val_loss27.370.h5'  # 预训练模型
     anchors_path = 'configs/yolo_anchors.txt'  # anchors
 
     class_names = get_classes(classes_path)  # 类别列表
@@ -101,8 +101,8 @@ def _main():
                             validation_data=data_generator_wrapper(lines[num_train:], batch_size, input_shape, anchors,
                                                                    num_classes),
                             validation_steps=max(1, num_val // batch_size),
-                            epochs=200,
-                            initial_epoch=50,
+                            epochs=100,
+                            initial_epoch=0,
                             callbacks=[logging, checkpoint, reduce_lr, early_stopping])
         model.save_weights(log_dir + 'trained_weights_final.h5')
 
