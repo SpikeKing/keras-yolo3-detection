@@ -24,10 +24,13 @@ from yolo3.utils import letterbox_image
 class YOLO(object):
     def __init__(self):
         self.anchors_path = 'configs/yolo_anchors.txt'  # Anchors
-        self.model_path = 'model_data/yolo_weights.h5'  # 模型文件
-        self.classes_path = 'configs/coco_classes.txt'  # 类别文件
+        # self.model_path = 'model_data/yolo_weights.h5'  # 模型文件
+        # self.classes_path = 'configs/coco_classes.txt'  # 类别文件
 
-        self.score = 0.1
+        self.model_path = 'model_data/ep074-loss26.535-val_loss27.370.h5'  # 模型文件
+        self.classes_path = 'configs/wider_classes.txt'  # 类别文件
+
+        self.score = 0.15
         # self.iou = 0.45
         self.iou = 0.20
         self.class_names = self._get_class()  # 获取类别
@@ -148,7 +151,7 @@ class YOLO(object):
 
 
 def detect_img_for_test(yolo):
-    img_path = './dataset/a4386X6Te9ajq866zgOtWKLx18XGW.jpg'
+    img_path = './dataset/vDaPl5QHdoqb2wOaVql4FoJWNGglYk.jpg'
     image = Image.open(img_path)
     r_image = yolo.detect_image(image)
     r_image.show()
