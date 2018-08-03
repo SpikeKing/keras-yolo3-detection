@@ -4,7 +4,7 @@
 Copyright (c) 2018. All rights reserved.
 Created by C. L. Wang on 2018/7/4
 """
-
+import os
 import numpy as np
 import tensorflow as tf
 import keras.backend as K
@@ -13,6 +13,7 @@ from keras.layers import Input, Lambda
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from keras.utils import plot_model
 
 from yolo3.model import preprocess_true_boxes, yolo_body, tiny_yolo_body, yolo_loss
 from yolo3.utils import get_random_data
@@ -56,7 +57,7 @@ def _main():
     val_split = 0.1  # 训练和验证的比例
     with open(annotation_path) as f:
         lines = f.readlines()
-    np.random.seed(10101)
+    np.random.seed(47)
     np.random.shuffle(lines)
     np.random.seed(None)
     num_val = int(len(lines) * val_split)  # 验证集数量
@@ -70,7 +71,7 @@ def _main():
     """
     if False:
         model.compile(optimizer=Adam(lr=1e-3), loss={
-            # use custom yolo_loss Lambda layer.
+            # 使用定制的 yolo_loss Lambda层
             'yolo_loss': lambda y_true, y_pred: y_pred})  # 损失函数
 
         batch_size = 32  # batch尺寸
@@ -102,7 +103,7 @@ def _main():
                                                                    num_classes),
                             validation_steps=max(1, num_val // batch_size),
                             epochs=100,
-                            initial_epoch=0,
+                            initial_epoch=50,
                             callbacks=[logging, checkpoint, reduce_lr, early_stopping])
         model.save_weights(log_dir + 'trained_weights_final.h5')
 
@@ -126,7 +127,7 @@ def get_anchors(anchors_path):
 def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2,
                  weights_path='model_data/yolo_weights.h5'):
     K.clear_session()  # 清除session
-    image_input = Input(shape=(None, None, 3))  # 图片输入格式
+    image_input = Input(shape=(416, 416, 3))  # 图片输入格式
     h, w = input_shape  # 尺寸
     num_anchors = len(anchors)  # anchor数量
 
@@ -151,8 +152,11 @@ def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze
                         output_shape=(1,), name='yolo_loss',
                         arguments={'anchors': anchors,
                                    'num_classes': num_classes,
-                                   'ignore_thresh': 0.5})(model_body.output + y_true)  # 后面是输入，前面是输出
+                                   'ignore_thresh': 0.5}
+                        )(model_body.output + y_true)
     model = Model([model_body.input] + y_true, model_loss)  # 模型，inputs和outputs
+    plot_model(model, to_file=os.path.join('model_data', 'model.png'), show_shapes=True, show_layer_names=True)
+    model.summary()
 
     return model
 

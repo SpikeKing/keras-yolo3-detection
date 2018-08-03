@@ -24,11 +24,11 @@ from yolo3.utils import letterbox_image
 class YOLO(object):
     def __init__(self):
         self.anchors_path = 'configs/yolo_anchors.txt'  # Anchors
-        # self.model_path = 'model_data/yolo_weights.h5'  # 模型文件
-        # self.classes_path = 'configs/coco_classes.txt'  # 类别文件
+        self.model_path = 'model_data/yolo_weights.h5'  # 模型文件
+        self.classes_path = 'configs/coco_classes.txt'  # 类别文件
 
-        self.model_path = 'model_data/ep074-loss26.535-val_loss27.370.h5'  # 模型文件
-        self.classes_path = 'configs/wider_classes.txt'  # 类别文件
+        # self.model_path = 'model_data/ep074-loss26.535-val_loss27.370.h5'  # 模型文件
+        # self.classes_path = 'configs/wider_classes.txt'  # 类别文件
 
         self.score = 0.15
         # self.iou = 0.45
@@ -151,11 +151,11 @@ class YOLO(object):
 
 
 def detect_img_for_test(yolo):
-    img_path = './dataset/vDaPl5QHdoqb2wOaVql4FoJWNGglYk.jpg'
+    img_path = './dataset/0D0m4WGHYWlLQlX8o6QyT4va0yKdRG.jpg'
     image = Image.open(img_path)
     r_image = yolo.detect_image(image)
     r_image.show()
-    r_image.save(img_path + '.d.jpg')
+    # r_image.save(img_path + '.d.jpg')
     yolo.close_session()
 
 
