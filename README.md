@@ -1,6 +1,6 @@
 # YOLO v3 目标检测算法
 
-> 欢迎关注，我的[知乎](https://www.zhihu.com/people/spikeking)：https://www.zhihu.com/people/spikeking
+> 欢迎关注，我的[知乎](https://www.zhihu.com/people/spikeking/posts)：https://www.zhihu.com/people/spikeking/posts
 > 
 > 欢迎关注，微信公众号 **深度算法** （ID: DeepAlgorithm） ，了解更多深度技术！
 
