@@ -1,8 +1,14 @@
-# 目标检测算法 YOLO v3
+# YOLO v3 目标检测算法
 
-YOLOv3训练的人脸检测模型
+> 欢迎关注，微信公众号 **深度算法** （ID: DeepAlgorithm） ，了解更多深度技术！
 
-验证：https://www.jianshu.com/p/44450ff2569a
-训练：https://www.jianshu.com/p/8214d947e031
+相关文章：
 
-[参考1](https://arxiv.org/abs/1804.02767)，[参考2](https://towardsdatascience.com/yolo-v3-object-detection-53fb7d3bfe6b)，[参考3](https://github.com/qqwweee/keras-yolo3)
+- [探索 YOLO v3 实现细节 - 第1篇 训练](https://mp.weixin.qq.com/s/T9LshbXoervdJDBuP564dQ)
+- [探索 YOLO v3 实现细节 - 第2篇 模型](https://mp.weixin.qq.com/s/N79S9Qf1OgKsQ0VU5QvuHg)
+- [探索 YOLO v3 实现细节 - 第3篇 网络](https://mp.weixin.qq.com/s/hC4P7iRGv5JSvvPe-ri_8g)
+
+参考：
+
+- [YOLO v3 Paper](https://arxiv.org/abs/1804.02767)
+- [What’s new in YOLO v3?](https://towardsdatascience.com/yolo-v3-object-detection-53fb7d3bfe6b)
