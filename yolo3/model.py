@@ -91,7 +91,7 @@ def yolo_body(inputs, num_anchors, num_classes):
         DarknetConv2D_BN_Leaky(128, (1, 1)),
         UpSampling2D(2))(x)
     x = Concatenate()([x, darknet.layers[92].output])
-    x, y3 = make_last_layers(x, 128, num_anchors * (num_classes + 5))
+    _, y3 = make_last_layers(x, 128, num_anchors * (num_classes + 5))
 
     return Model(inputs, [y1, y2, y3])
 
@@ -147,8 +147,8 @@ def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
         feats, [-1, grid_shape[0], grid_shape[1], num_anchors, num_classes + 5])
 
     # Adjust preditions to each spatial grid point and anchor size.
-    box_xy = (K.sigmoid(feats[..., :2]) + grid) / K.cast(grid_shape[::-1], K.dtype(feats))
-    box_wh = K.exp(feats[..., 2:4]) * anchors_tensor / K.cast(input_shape[::-1], K.dtype(feats))
+    box_xy = (K.sigmoid(feats[..., :2]) + grid) / K.cast(grid_shape[::-1], K.dtype(feats))  # xy是归一化的值
+    box_wh = K.exp(feats[..., 2:4]) * anchors_tensor / K.cast(input_shape[::-1], K.dtype(feats))  # wh是归一化的值
     box_confidence = K.sigmoid(feats[..., 4:5])
     box_class_probs = K.sigmoid(feats[..., 5:])
 
@@ -352,7 +352,7 @@ def box_iou(b1, b2):
     return iou
 
 
-def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
+def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=True):
     '''Return yolo_loss tensor
 
     Parameters
@@ -384,8 +384,9 @@ def yolo_loss(args, anchors, num_classes, ignore_thresh=.5, print_loss=False):
         object_mask = y_true[l][..., 4:5]
         true_class_probs = y_true[l][..., 5:]
 
-        grid, raw_pred, pred_xy, pred_wh = yolo_head(yolo_outputs[l],
-                                                     anchors[anchor_mask[l]], num_classes, input_shape, calc_loss=True)
+        grid, raw_pred, pred_xy, pred_wh = \
+            yolo_head(yolo_outputs[l], anchors[anchor_mask[l]],
+                      num_classes, input_shape, calc_loss=True)
         pred_box = K.concatenate([pred_xy, pred_wh])
 
         # Darknet raw box to calculate loss.

@@ -127,8 +127,8 @@ def get_anchors(anchors_path):
 def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze_body=2,
                  weights_path='model_data/yolo_weights.h5'):
     K.clear_session()  # 清除session
-    image_input = Input(shape=(416, 416, 3))  # 图片输入格式
     h, w = input_shape  # 尺寸
+    image_input = Input(shape=(w, h, 3))  # 图片输入格式
     num_anchors = len(anchors)  # anchor数量
 
     # YOLO的三种尺度，每个尺度的anchor数，类别数+边框4个+置信度1
@@ -154,7 +154,7 @@ def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze
                                    'num_classes': num_classes,
                                    'ignore_thresh': 0.5}
                         )(model_body.output + y_true)
-    model = Model([model_body.input] + y_true, model_loss)  # 模型，inputs和outputs
+    model = Model(inputs=[model_body.input] + y_true, outputs=model_loss)  # 模型，inputs和outputs
     plot_model(model, to_file=os.path.join('model_data', 'model.png'), show_shapes=True, show_layer_names=True)
     model.summary()
 
