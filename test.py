@@ -5,16 +5,12 @@ Copyright (c) 2018. All rights reserved.
 Created by C. L. Wang on 2018/8/2
 """
 
-import numpy as np
+from keras import backend as K
 
-a = np.array([[1, 2]])
-print(a.shape)  # (1, 2)
-b = np.array([[1], [2]])
-print(b.shape)  # (2, 1)
-c = a + b
-print(c.shape)  # (2, 2)
-print(c)
-"""
-[[2 3]
- [3 4]]
-"""
+sess = K.get_session()
+a = K.constant([2, 4])
+b = K.constant([3, 2])
+c = K.square(a - b)
+print(sess.run(c))
+
+# K.square(raw_true_wh - raw_pred[..., 2:4])
