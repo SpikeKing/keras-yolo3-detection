@@ -7,6 +7,7 @@
 - [探索 YOLO v3 实现细节 - 第1篇 训练](https://mp.weixin.qq.com/s/T9LshbXoervdJDBuP564dQ)
 - [探索 YOLO v3 实现细节 - 第2篇 模型](https://mp.weixin.qq.com/s/N79S9Qf1OgKsQ0VU5QvuHg)
 - [探索 YOLO v3 实现细节 - 第3篇 网络](https://mp.weixin.qq.com/s/hC4P7iRGv5JSvvPe-ri_8g)
+- [探索 YOLO v3 实现细节 - 第4篇 真值](https://mp.weixin.qq.com/s/5Sj7QadfVvx-5W9Cr4d3Yw)
 
 参考：
 
