@@ -30,13 +30,15 @@ class YOLO(object):
         # self.model_path = 'model_data/ep074-loss26.535-val_loss27.370.h5'  # 模型文件
         # self.classes_path = 'configs/wider_classes.txt'  # 类别文件
 
-        self.score = 0.15
+        self.score = 0.20
         # self.iou = 0.45
         self.iou = 0.20
         self.class_names = self._get_class()  # 获取类别
         self.anchors = self._get_anchors()  # 获取anchor
         self.sess = K.get_session()
         self.model_image_size = (416, 416)  # fixed size or (None, None), hw
+
+        self.colors = self.__get_colors(self.class_names)
         self.boxes, self.scores, self.classes = self.generate()
 
     def _get_class(self):
@@ -53,6 +55,19 @@ class YOLO(object):
         anchors = [float(x) for x in anchors.split(',')]
         return np.array(anchors).reshape(-1, 2)
 
+    @staticmethod
+    def __get_colors(names):
+        # 不同的框，不同的颜色
+        hsv_tuples = [(float(x) / len(names), 1., 1.)
+                      for x in range(len(names))]  # 不同颜色
+        colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+        colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))  # RGB
+        np.random.seed(10101)
+        np.random.shuffle(colors)
+        np.random.seed(None)
+
+        return colors
+
     def generate(self):
         model_path = os.path.expanduser(self.model_path)  # 转换~
         assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
@@ -60,25 +75,16 @@ class YOLO(object):
         num_anchors = len(self.anchors)  # anchors的数量
         num_classes = len(self.class_names)  # 类别数
 
-        # 加载模型参数
-        self.yolo_model = yolo_body(Input(shape=(None, None, 3)), 3, num_classes)
-        self.yolo_model.load_weights(model_path)
+        self.yolo_model = yolo_body(Input(shape=(416, 416, 3)), 3, num_classes)
+        self.yolo_model.load_weights(model_path)  # 加载模型参数
 
         print('{} model, {} anchors, and {} classes loaded.'.format(model_path, num_anchors, num_classes))
 
-        # 不同的框，不同的颜色
-        hsv_tuples = [(float(x) / len(self.class_names), 1., 1.)
-                      for x in range(len(self.class_names))]  # 不同颜色
-        self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
-        self.colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), self.colors))  # RGB
-        np.random.seed(10101)
-        np.random.shuffle(self.colors)
-        np.random.seed(None)
-
         # 根据检测参数，过滤框
         self.input_image_shape = K.placeholder(shape=(2,))
-        boxes, scores, classes = yolo_eval(self.yolo_model.output, self.anchors, len(self.class_names),
-                                           self.input_image_shape, score_threshold=self.score, iou_threshold=self.iou)
+        boxes, scores, classes = yolo_eval(
+            self.yolo_model.output, self.anchors, len(self.class_names),
+            self.input_image_shape, score_threshold=self.score, iou_threshold=self.iou)
         return boxes, scores, classes
 
     def detect_image(self, image):
@@ -150,14 +156,14 @@ class YOLO(object):
         self.sess.close()
 
 
-def detect_img_for_test(yolo):
+def detect_img_for_test():
+    yolo = YOLO()
     img_path = './dataset/0D0m4WGHYWlLQlX8o6QyT4va0yKdRG.jpg'
     image = Image.open(img_path)
     r_image = yolo.detect_image(image)
-    r_image.show()
-    # r_image.save(img_path + '.d.jpg')
     yolo.close_session()
+    r_image.save('xxx.png')
 
 
 if __name__ == '__main__':
-    detect_img_for_test(YOLO())
+    detect_img_for_test()
