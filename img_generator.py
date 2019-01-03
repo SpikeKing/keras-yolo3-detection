@@ -25,7 +25,12 @@ def generate_data(file_name):
 
     for count, (path, name) in enumerate(zip(path_list, name_list)):
         # print(path, name)
-        objects_line = yolo.detect_objects_of_image(path)
+        try:
+            objects_line = yolo.detect_objects_of_image(path)
+        except Exception as e:
+            print("错误: {}".format(name))
+            continue
+
         if not objects_line:
             continue
         # print(objects_line)
