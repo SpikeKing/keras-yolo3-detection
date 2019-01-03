@@ -7,30 +7,19 @@ Created by C. L. Wang on 2018/7/9
 常用方法
 """
 
-# from __future__ import absolute_import
-
 import collections
+import glob
+import io
+import json
+import operator
 import os
 import random
-import shutil
-import sys
-import time
-from datetime import timedelta, datetime
-
-# reload(sys)  # 重置系统参数
-# sys.setdefaultencoding('utf8')  # 避免编码错误
-
-p = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-if p not in sys.path:
-    sys.path.append(p)
-
-import glob
-import json
-import os
 import re
-import operator
+import shutil
+import time
 
-from itertools import izip
+from datetime import timedelta, datetime
+from itertools import chain
 
 FORMAT_DATE = '%Y%m%d'
 FORMAT_DATE_2 = '%Y-%m-%d'
@@ -63,14 +52,15 @@ def traverse_dir_files(root_dir, ext=None):
     return paths_list, names_list
 
 
-def sort_two_list(list1, list2):
+def sort_two_list(list1, list2, reverse=False):
     """
     排序两个列表
     :param list1: 列表1
     :param list2: 列表2
+    :param reverse: 逆序
     :return: 排序后的两个列表
     """
-    list1, list2 = (list(t) for t in zip(*sorted(zip(list1, list2))))
+    list1, list2 = (list(t) for t in zip(*sorted(zip(list1, list2), reverse=reverse)))
     return list1, list2
 
 
@@ -85,14 +75,14 @@ def mkdir_if_not_exist(dir_name, is_delete=False):
         if is_delete:
             if os.path.exists(dir_name):
                 shutil.rmtree(dir_name)
-                print '[Info] 文件夹 "%s" 存在, 删除文件夹.' % dir_name
+                print('[Info] 文件夹 "%s" 存在, 删除文件夹.' % dir_name)
 
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
-            print '[Info] 文件夹 "%s" 不存在, 创建文件夹.' % dir_name
+            print('[Info] 文件夹 "%s" 不存在, 创建文件夹.' % dir_name)
         return True
     except Exception as e:
-        print '[Exception] %s' % e
+        print('[Exception] %s' % e)
         return False
 
 
@@ -131,11 +121,11 @@ def create_folder(atp_out_dir):
     """
     if os.path.exists(atp_out_dir):
         shutil.rmtree(atp_out_dir)
-        print '文件夹 "%s" 存在，删除文件夹。' % atp_out_dir
+        print('文件夹 "%s" 存在，删除文件夹。' % atp_out_dir)
 
     if not os.path.exists(atp_out_dir):
         os.makedirs(atp_out_dir)
-        print '文件夹 "%s" 不存在，创建文件夹。' % atp_out_dir
+        print('文件夹 "%s" 不存在，创建文件夹。' % atp_out_dir)
 
 
 def create_file(file_name):
@@ -145,10 +135,10 @@ def create_file(file_name):
     :return: None
     """
     if os.path.exists(file_name):
-        print "文件存在，删除文件：%s" % file_name
+        print("文件存在，删除文件：%s" % file_name)
         os.remove(file_name)  # 删除已有文件
     if not os.path.exists(file_name):
-        print "文件不存在，创建文件：%s" % file_name
+        print("文件不存在，创建文件：%s" % file_name)
         open(file_name, 'a').close()
 
 
@@ -158,13 +148,13 @@ def remove_punctuation(line):
     :param line:
     :return:
     """
-    rule = re.compile(ur"[^a-zA-Z0-9\u4e00-\u9fa5]")
+    rule = re.compile(u"[^a-zA-Z0-9\u4e00-\u9fa5]")
     line = rule.sub('', line)
     return line
 
 
 def check_punctuation(word):
-    pattern = re.compile(ur"[^a-zA-Z0-9\u4e00-\u9fa5]")
+    pattern = re.compile(u"[^a-zA-Z0-9\u4e00-\u9fa5]")
     if pattern.search(word):
         return True
     else:
@@ -281,8 +271,8 @@ def sort_dict_by_value(dict_, reverse=True):
 
 def get_current_time_str():
     """
-    输入当天的日期格式, 20170718_1137
-    :return: 20170718_1137
+    输入当天的日期格式, 201707181137
+    :return: 201707181137
     """
     return datetime.now().strftime('%Y%m%d%H%M%S')
 
@@ -379,19 +369,6 @@ def list_has_sub_str(string_list, sub_str):
     return False
 
 
-def list_has_index(index_list, sub_index):
-    """
-    判断sub_index是否在索引列表中
-    :param index_list: 索引列表(start_index, end_index)
-    :param sub_index: 索引
-    :return: 是否在其中
-    """
-    for start_index, end_index in grouped(index_list, 2):
-        if start_index <= sub_index <= end_index:
-            return True
-    return False
-
-
 def remove_last_char(str_value, num):
     """
     删除最后的字符串
@@ -415,7 +392,48 @@ def read_file(data_file, mode='more'):
                 return output
             elif mode == 'more':
                 output = f.readlines()
-                return map(str.strip, output)
+                output = [o.strip() for o in output]
+                return output
+            else:
+                return list()
+    except IOError:
+        return list()
+
+
+def read_file_utf8(data_file, mode='more'):
+    """
+    读文件, 原文件和数据文件
+    :return: 单行或数组
+    """
+    try:
+        with open(data_file, 'r', encoding='utf8') as f:
+            if mode == 'one':
+                output = f.read()
+                return output
+            elif mode == 'more':
+                output = f.readlines()
+                output = [o.strip() for o in output]
+                return output
+            else:
+                return list()
+    except IOError:
+        return list()
+
+
+def read_file_gb2312(data_file, mode='more'):
+    """
+    读文件, 原文件和数据文件
+    :return: 单行或数组
+    """
+    try:
+        with open(data_file, 'r', encoding='gb2312') as f:
+            if mode == 'one':
+                output = f.read()
+                return output
+            elif mode == 'more':
+                output = f.readlines()
+                output = [o.strip() for o in output]
+                return output
             else:
                 return list()
     except IOError:
@@ -447,6 +465,22 @@ def write_list_to_file(file_name, data_list):
         write_line(file_name, data)
 
 
+def write_line_utf8(file_name, line):
+    """
+    将行数据写入文件
+    :param file_name: 文件名
+    :param line: 行数据
+    :return: None
+    """
+    if file_name == "":
+        return
+    with io.open(file_name, "a+", encoding='utf8') as fs:
+        if type(line) is (tuple or list):
+            fs.write("%s\n" % ", ".join(line))
+        else:
+            fs.write("%s\n" % line)
+
+
 def write_line(file_name, line):
     """
     将行数据写入文件
@@ -456,7 +490,7 @@ def write_line(file_name, line):
     """
     if file_name == "":
         return
-    with open(file_name, "a+") as fs:
+    with io.open(file_name, "a+") as fs:
         if type(line) is (tuple or list):
             fs.write("%s\n" % ", ".join(line))
         else:
@@ -479,7 +513,7 @@ def show_string(obj):
     :param obj: 输入对象, 可以是列表或字典
     :return: None
     """
-    print list_2_utf8(obj)
+    print(list_2_utf8(obj))
 
 
 def list_2_utf8(obj):
@@ -489,20 +523,6 @@ def list_2_utf8(obj):
     :return:
     """
     return json.dumps(obj, encoding="UTF-8", ensure_ascii=False)
-
-
-def grouped_list(iterable, n):
-    """
-    "s -> (s0,s1,s2,...sn-1), (sn,sn+1,sn+2,...s2n-1), (s2n,s2n+1,s2n+2,...s3n-1), ..."
-    例子:
-    for x, y in grouped(l, 2):
-        print "%d + %d = %d" % (x, y, x + y)
-
-    :param iterable: 迭代器
-    :param n: 间隔
-    :return: 组合
-    """
-    return izip(*[iter(iterable)] * n)
 
 
 def listdir_no_hidden(root_dir):
@@ -559,3 +579,41 @@ def batch(iterable, n=1):
     l = len(iterable)
     for ndx in range(0, l, n):
         yield iterable[ndx:min(ndx + n, l)]
+
+
+def unicode_str(s):
+    """
+    将字符串转换为unicode
+    :param s: 字符串
+    :return: unicode字符串
+    """
+    try:
+        s = str(s, 'utf-8')
+    except Exception as e:
+        s = s
+    return s
+
+
+def unfold_nested_list(data_list):
+    """
+    展开嵌套的list
+    :param data_list: 数据list
+    :return: 展开list
+    """
+    return list(chain.from_iterable(data_list))
+
+
+def unicode_list(data_list):
+    """
+    将list转换为unicode list
+    :param data_list: 数量列表
+    :return: unicode列表
+    """
+    return [unicode_str(s) for s in data_list]
+
+
+def is_non_zero_file(fpath):
+    """
+    判断空文件
+    """
+    return os.path.isfile(fpath) and os.path.getsize(fpath) > 0

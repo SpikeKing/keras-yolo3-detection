@@ -25,7 +25,7 @@ class YOLO(object):
     def __init__(self):
         self.anchors_path = 'configs/yolo_anchors.txt'  # Anchors
         self.model_path = 'model_data/yolo_weights.h5'  # 模型文件
-        self.classes_path = 'configs/coco_classes.txt'  # 类别文件
+        self.classes_path = 'configs/coco_classes_ch.txt'  # 类别文件
 
         # self.model_path = 'model_data/ep074-loss26.535-val_loss27.370.h5'  # 模型文件
         # self.classes_path = 'configs/wider_classes.txt'  # 类别文件
@@ -43,7 +43,7 @@ class YOLO(object):
 
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)
-        with open(classes_path) as f:
+        with open(classes_path, encoding='utf8') as f:
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]
         return class_names
@@ -161,7 +161,7 @@ class YOLO(object):
         image_data = np.array(boxed_image, dtype='float32')
         image_data /= 255.  # 转换0~1
         image_data = np.expand_dims(image_data, 0)  # 添加批次维度，将图片增加1维
-        print('detector size {}'.format(image_data.shape))
+        # print('detector size {}'.format(image_data.shape))
 
         out_boxes, out_scores, out_classes = self.sess.run(
             [self.boxes, self.scores, self.classes],
@@ -171,21 +171,27 @@ class YOLO(object):
                 K.learning_phase(): 0
             })
 
-        print('out_boxes: {}'.format(out_boxes))
-        print('out_scores: {}'.format(out_scores))
-        print('out_classes: {}'.format(out_classes))
+        # print('out_boxes: {}'.format(out_boxes))
+        # print('out_scores: {}'.format(out_scores))
+        # print('out_classes: {}'.format(out_classes))
 
         img_size = image.size[0] * image.size[1]
-        self._filter_boxes(out_boxes, out_scores, out_classes, img_size)
+        objects_line = self._filter_boxes(out_boxes, out_scores, out_classes, img_size)
+        return objects_line
 
     def _filter_boxes(self, boxes, scores, classes, img_size):
+        res_items = []
         for box, score, clazz in zip(boxes, scores, classes):
             top, left, bottom, right = box
             box_size = (bottom - top) * (right - left)
-            print(box_size)
-            print(img_size)
             rate = float(box_size) / float(img_size)
-            print('rate: {}'.format(rate))
+            if clazz == 0:
+                continue
+            clz_name = self.class_names[clazz]
+            if rate > 0.04:
+                res_items.append('{}-{:0.2f}'.format(clz_name, rate))
+        res_line = ','.join(res_items)
+        return res_line
 
     def close_session(self):
         self.sess.close()
@@ -193,7 +199,7 @@ class YOLO(object):
 
 def detect_img_for_test():
     yolo = YOLO()
-    img_path = './dataset/AOA-1.jpg'
+    img_path = './dataset/vDaPl5QHdoqb2wOaVql4FoJWNGglYk.jpg'
     image = Image.open(img_path)
     r_image = yolo.detect_image(image)
     yolo.close_session()
@@ -202,8 +208,9 @@ def detect_img_for_test():
 
 def test_of_detect_objects_of_image():
     yolo = YOLO()
-    img_path = './dataset/AOA-1.jpg'
-    yolo.detect_objects_of_image(img_path)
+    img_path = './dataset/vDaPl5QHdoqb2wOaVql4FoJWNGglYk.jpg'
+    objects_line = yolo.detect_objects_of_image(img_path)
+    print(objects_line)
 
 
 if __name__ == '__main__':
