@@ -185,10 +185,8 @@ class YOLO(object):
             top, left, bottom, right = box
             box_size = (bottom - top) * (right - left)
             rate = float(box_size) / float(img_size)
-            if clazz == 0:
-                continue
             clz_name = self.class_names[clazz]
-            if rate > 0.04:
+            if rate > 0.05:
                 res_items.append('{}-{:0.2f}'.format(clz_name, rate))
         res_line = ','.join(res_items)
         return res_line
