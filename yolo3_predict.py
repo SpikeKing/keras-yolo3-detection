@@ -30,7 +30,7 @@ class YOLO(object):
         # self.model_path = 'model_data/ep074-loss26.535-val_loss27.370.h5'  # 模型文件
         # self.classes_path = 'configs/wider_classes.txt'  # 类别文件
 
-        self.score = 0.20
+        self.score = 0.60
         self.iou = 0.45
         # self.iou = 0.01
         self.class_names = self._get_class()  # 获取类别
