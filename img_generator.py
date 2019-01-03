@@ -32,8 +32,9 @@ def generate_data(file_name):
         print("已处理: {}".format(name))
         data_line = '{}---{}'.format(name, objects_line)
         write_line_utf8(out_file, data_line)
-        if count == 100:
-            break
+        if count % 1000 == 0:
+            print('count: {}'.format(count))
+        #     break
 
     yolo.close_session()
 
