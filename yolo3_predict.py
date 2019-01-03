@@ -31,8 +31,8 @@ class YOLO(object):
         # self.classes_path = 'configs/wider_classes.txt'  # 类别文件
 
         self.score = 0.20
-        # self.iou = 0.45
-        self.iou = 0.20
+        self.iou = 0.45
+        # self.iou = 0.01
         self.class_names = self._get_class()  # 获取类别
         self.anchors = self._get_anchors()  # 获取anchor
         self.sess = K.get_session()
@@ -152,18 +152,60 @@ class YOLO(object):
         print(end - start)  # 检测执行时间
         return image
 
+    def detect_objects_of_image(self, img_path):
+        image = Image.open(img_path)
+        assert self.model_image_size[0] % 32 == 0, 'Multiples of 32 required'
+        assert self.model_image_size[1] % 32 == 0, 'Multiples of 32 required'
+        boxed_image = letterbox_image(image, tuple(reversed(self.model_image_size)))  # 填充图像
+
+        image_data = np.array(boxed_image, dtype='float32')
+        image_data /= 255.  # 转换0~1
+        image_data = np.expand_dims(image_data, 0)  # 添加批次维度，将图片增加1维
+        print('detector size {}'.format(image_data.shape))
+
+        out_boxes, out_scores, out_classes = self.sess.run(
+            [self.boxes, self.scores, self.classes],
+            feed_dict={
+                self.yolo_model.input: image_data,
+                self.input_image_shape: [image.size[1], image.size[0]],
+                K.learning_phase(): 0
+            })
+
+        print('out_boxes: {}'.format(out_boxes))
+        print('out_scores: {}'.format(out_scores))
+        print('out_classes: {}'.format(out_classes))
+
+        img_size = image.size[0] * image.size[1]
+        self._filter_boxes(out_boxes, out_scores, out_classes, img_size)
+
+    def _filter_boxes(self, boxes, scores, classes, img_size):
+        for box, score, clazz in zip(boxes, scores, classes):
+            top, left, bottom, right = box
+            box_size = (bottom - top) * (right - left)
+            print(box_size)
+            print(img_size)
+            rate = float(box_size) / float(img_size)
+            print('rate: {}'.format(rate))
+
     def close_session(self):
         self.sess.close()
 
 
 def detect_img_for_test():
     yolo = YOLO()
-    img_path = './dataset/0D0m4WGHYWlLQlX8o6QyT4va0yKdRG.jpg'
+    img_path = './dataset/AOA-1.jpg'
     image = Image.open(img_path)
     r_image = yolo.detect_image(image)
     yolo.close_session()
     r_image.save('xxx.png')
 
 
+def test_of_detect_objects_of_image():
+    yolo = YOLO()
+    img_path = './dataset/AOA-1.jpg'
+    yolo.detect_objects_of_image(img_path)
+
+
 if __name__ == '__main__':
-    detect_img_for_test()
+    # detect_img_for_test()
+    test_of_detect_objects_of_image()
